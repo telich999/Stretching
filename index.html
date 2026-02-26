@@ -1,491 +1,475 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweep & Stretch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .timer-circle {
+            transition: stroke-dashoffset 1s linear, color 0.5s ease;
+        }
+        /* Simple spinner animation for loading */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin 1.5s linear infinite;
+        }
+    </style>
 </head>
-<body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Sweep &amp; Stretch&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.timer-circle {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transition: stroke-dashoffset 1s linear, color 0.5s ease;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Simple spinner animation for loading */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes spin {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>from { transform: rotate(0deg); }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>to { transform: rotate(360deg); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.animate-spin-slow {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>animation: spin 1.5s linear infinite;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body class="bg-neutral-50 font-sans antialiased text-neutral-900 selection:bg-blue-200"&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="app-container" class="w-full min-h-screen"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Views will be toggled here --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;script&gt;</p>
-<p class="p1">// --- DATA &amp; JOKES ---</p>
-<p class="p1">const JOKES = [</p>
-<p class="p1"><span class="Apple-converted-space">  </span>"Why did the curler bring a broom to the bar? To sweep the competition!",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>"What is a curler's favorite type of music? Heavy metal (because of the stones)!",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>"Why are curlers so good at cleaning? They always sweep the house!",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>"What did the ice say to the curling stone? You rock!",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>"I tried to make a curling joke... but it didn't have the right delivery.",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>"How do curlers stay cool? They hang out near the hack!",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>"Keep your friends close, and your curling stones closer."</p>
-<p class="p1">];</p>
-<p class="p2"><br></p>
-<p class="p1">const EXERCISE_POOL = {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flatFeet: [</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'arch', name: "Short Foot / Arch Lifts", desc: "Sit or stand. Without curling your toes, pull the ball of your foot toward your heel to create an arch. Hold, then release.", baseTime: 30, requiresSwitch: false },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'toe_yoga', name: "Toe Yoga", desc: "Keep your big toe down and lift the other four. Then keep the four down and lift the big toe. Great for foot control!", baseTime: 40, requiresSwitch: false },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'calf', name: "Seated Calf Raises", desc: "Sit up tall. Push through the balls of your feet to lift your heels high. Slowly lower. Strengthens the arch and calf.", baseTime: 45, requiresSwitch: false },</p>
-<p class="p1"><span class="Apple-converted-space">  </span>],</p>
-<p class="p1"><span class="Apple-converted-space">  </span>balance: [</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'single_leg', name: "Chair-Supported Single Leg Stand", desc: "Stand next to a sturdy chair. Hold the chair, lift one foot. Try to let go with one finger at a time. Wobbling is normal!", baseTime: 40, requiresSwitch: true },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'tandem', name: "Tandem Stance (Heel-to-Toe)", desc: "Stand near a wall. Place one foot directly in front of the other, heel touching toe. Hold your balance.", baseTime: 40, requiresSwitch: true },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'weight_shift', name: "Weight Shifts", desc: "Stand with feet hip-width. Shift your weight entirely to your right leg, pause, then to your left. Keep a chair in front of you.", baseTime: 40, requiresSwitch: false },</p>
-<p class="p1"><span class="Apple-converted-space">  </span>],</p>
-<p class="p1"><span class="Apple-converted-space">  </span>hamstrings: [</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'towel', name: "Seated Towel Stretch", desc: "Sit on the floor. Loop a towel around one foot. Gently pull the towel to stretch the back of your leg. Keep your back straight.", baseTime: 60, requiresSwitch: true },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'chair_ham', name: "Chair Hamstring Stretch", desc: "Sit on the edge of a chair. Extend one leg out straight, heel on the floor. Hinge forward slightly at the hips.", baseTime: 60, requiresSwitch: true },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'wall_ham', name: "Wall Supported Hamstring", desc: "Lie on your back near a doorway. Put one leg straight up the wall/doorframe, the other through the door. Relax.", baseTime: 60, requiresSwitch: true },</p>
-<p class="p1"><span class="Apple-converted-space">  </span>],</p>
-<p class="p1"><span class="Apple-converted-space">  </span>hips: [</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'figure4', name: "Seated Figure 4", desc: "Sit in a chair. Cross your right ankle over your left knee. Gently press the right knee down or lean forward slightly.", baseTime: 60, requiresSwitch: true },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'kneel_lunge', name: "Kneeling Lunge Stretch", desc: "Kneel on a soft pillow. Step one foot forward so your knee is at 90 degrees. Gently shift weight forward. Hold a wall!", baseTime: 60, requiresSwitch: true },</p>
-<p class="p1"><span class="Apple-converted-space">  </span>],</p>
-<p class="p1"><span class="Apple-converted-space">  </span>curling: [</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'broom', name: "The Broom Twist", desc: "Sit or stand holding a broom (or imaginary broom) across your shoulders. Gently twist your torso side to side.", baseTime: 45, requiresSwitch: false },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'slider', name: "Supported Slider Lunge", desc: "Hold a chair. Step one foot back and drop your hips slightly into a mini-lunge, mimicking a curling slide. Don't go deep!", baseTime: 40, requiresSwitch: true },</p>
-<p class="p1"><span class="Apple-converted-space">  </span>]</p>
-<p class="p1">};</p>
-<p class="p2"><br></p>
-<p class="p1">// --- SVG ASSETS ---</p>
-<p class="p1">const ICONS = {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>play: `&lt;svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polygon points="5 3 19 12 5 21 5 3"&gt;&lt;/polygon&gt;&lt;/svg&gt;`,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>pause: `&lt;svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;rect x="6" y="4" width="4" height="16"&gt;&lt;/rect&gt;&lt;rect x="14" y="4" width="4" height="16"&gt;&lt;/rect&gt;&lt;/svg&gt;`,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>chevronRight: `&lt;svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polyline points="9 18 15 12 9 6"&gt;&lt;/polyline&gt;&lt;/svg&gt;`,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>refresh: `&lt;svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transform rotate-45"&gt;&lt;polyline points="1 4 1 10 7 10"&gt;&lt;/polyline&gt;&lt;polyline points="23 20 23 14 17 14"&gt;&lt;/polyline&gt;&lt;path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"&gt;&lt;/path&gt;&lt;path d="M3.51 15A9 9 0 0 0 18.36 18.36L23 14"&gt;&lt;/path&gt;&lt;/svg&gt;`,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>checkCircle: `&lt;svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"&gt;&lt;/path&gt;&lt;polyline points="22 4 12 14.01 9 11.01"&gt;&lt;/polyline&gt;&lt;/svg&gt;`,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>smile: `&lt;svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;circle cx="12" cy="12" r="10"&gt;&lt;/circle&gt;&lt;path d="M8 14s1.5 2 4 2 4-2 4-2"&gt;&lt;/path&gt;&lt;line x1="9" y1="9" x2="9.01" y2="9"&gt;&lt;/line&gt;&lt;line x1="15" y1="9" x2="15.01" y2="9"&gt;&lt;/line&gt;&lt;/svg&gt;`,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>sparkles: `&lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"&gt;&lt;/path&gt;&lt;path d="M5 3v4"&gt;&lt;/path&gt;&lt;path d="M19 17v4"&gt;&lt;/path&gt;&lt;path d="M3 5h4"&gt;&lt;/path&gt;&lt;path d="M17 19h4"&gt;&lt;/path&gt;&lt;/svg&gt;`,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>loader: `&lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin-slow"&gt;&lt;path d="M21 12a9 9 0 1 1-6.219-8.56"&gt;&lt;/path&gt;&lt;/svg&gt;`,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>arrowRightLeft: `&lt;svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="m16 3 4 4-4 4"&gt;&lt;/path&gt;&lt;path d="M20 7H4"&gt;&lt;/path&gt;&lt;path d="m8 21-4-4 4-4"&gt;&lt;/path&gt;&lt;path d="M4 17h16"&gt;&lt;/path&gt;&lt;/svg&gt;`,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>info: `&lt;svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;circle cx="12" cy="12" r="10"&gt;&lt;/circle&gt;&lt;line x1="12" y1="16" x2="12" y2="12"&gt;&lt;/line&gt;&lt;line x1="12" y1="8" x2="12.01" y2="8"&gt;&lt;/line&gt;&lt;/svg&gt;`</p>
-<p class="p1">};</p>
-<p class="p2"><br></p>
-<p class="p1">function getSketchPath(id) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>switch(id) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'arch': return '&lt;path d="M 20 80 Q 45 65 70 80 L 85 90 L 15 90 Z" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'toe_yoga': return '&lt;path d="M 20 85 L 50 85 L 75 70 M 50 85 L 80 80 M 50 85 L 85 90" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'calf': return '&lt;rect x="15" y="45" width="25" height="40" stroke="none" fill="#e2e8f0" /&gt;&lt;circle cx="30" cy="15" r="8" /&gt;&lt;path d="M 30 23 L 30 50 M 30 50 L 55 50 M 55 50 L 55 80 M 55 80 L 70 95" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'single_leg': return '&lt;rect x="70" y="40" width="15" height="50" stroke="none" fill="#e2e8f0" /&gt;&lt;circle cx="40" cy="15" r="8" /&gt;&lt;path d="M 40 23 L 40 55 M 40 55 L 40 90 M 40 55 L 55 55 M 55 55 L 55 80 M 40 35 L 70 45 M 40 35 L 20 50" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'tandem': return '&lt;circle cx="50" cy="15" r="8" /&gt;&lt;path d="M 50 23 L 50 60 M 50 60 L 35 90 M 35 90 L 55 90 M 50 60 L 65 90 M 65 90 L 85 90 M 50 35 L 20 45 M 50 35 L 80 45" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'weight_shift': return '&lt;circle cx="60" cy="15" r="8" /&gt;&lt;path d="M 60 23 L 50 55 M 50 55 L 40 90 M 50 55 L 70 90 M 60 35 L 30 40 M 60 35 L 85 45" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'towel': return '&lt;circle cx="25" cy="40" r="8" /&gt;&lt;path d="M 25 48 L 25 80 M 25 80 L 80 80 M 25 55 L 75 75 M 75 75 L 80 80 M 25 80 L 15 80" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'chair_ham': return '&lt;rect x="10" y="45" width="25" height="40" stroke="none" fill="#e2e8f0" /&gt;&lt;circle cx="25" cy="15" r="8" /&gt;&lt;path d="M 25 23 L 25 50 M 25 50 L 40 50 L 40 90 M 25 50 L 75 90 M 25 35 L 45 45" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'wall_ham': return '&lt;rect x="65" y="10" width="10" height="80" stroke="none" fill="#e2e8f0" /&gt;&lt;circle cx="20" cy="80" r="8" /&gt;&lt;path d="M 28 80 L 60 80 M 60 80 L 60 25 M 60 80 L 90 80 M 40 80 L 50 65" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'figure4': return '&lt;rect x="30" y="45" width="25" height="40" stroke="none" fill="#e2e8f0" /&gt;&lt;circle cx="40" cy="15" r="8" /&gt;&lt;path d="M 40 23 L 40 50 M 40 50 L 60 50 L 60 90 M 40 50 L 70 45 L 60 70 M 40 35 L 60 40" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'kneel_lunge': return '&lt;circle cx="40" cy="20" r="8" /&gt;&lt;path d="M 40 28 L 40 55 M 40 55 L 20 85 L 40 85 M 40 55 L 65 55 L 65 85 M 40 40 L 60 45 L 60 70" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'broom': return '&lt;circle cx="50" cy="15" r="8" /&gt;&lt;path d="M 50 23 L 50 65 M 50 65 L 40 90 M 50 65 L 60 90 M 15 30 L 85 30 M 50 35 L 30 35 M 50 35 L 70 35" stroke-width="5" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>case 'slider': return '&lt;rect x="70" y="55" width="15" height="30" stroke="none" fill="#e2e8f0" /&gt;&lt;circle cx="35" cy="25" r="8" /&gt;&lt;path d="M 35 33 L 55 60 M 55 60 L 20 85 M 55 60 L 75 60 L 75 85 M 35 45 L 75 55" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>default: return '&lt;circle cx="50" cy="50" r="20" /&gt;';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// --- STATE MANAGEMENT ---</p>
-<p class="p1">let appState = 'home';<span class="Apple-converted-space"> </span></p>
-<p class="p1">let level = 1;</p>
-<p class="p1">let workoutsCompleted = 0;</p>
-<p class="p1">let currentJoke = JOKES[Math.floor(Math.random() * JOKES.length)];</p>
-<p class="p2"><br></p>
-<p class="p1">let currentRoutine = [];</p>
-<p class="p1">let currentExIndex = 0;</p>
-<p class="p1">let timeLeft = 0;</p>
-<p class="p1">let timerActive = false;</p>
-<p class="p1">let hasSwitched = false;</p>
-<p class="p1">let isHalfwayPaused = false;</p>
-<p class="p2"><br></p>
-<p class="p1">let isGeneratingMod = false;</p>
-<p class="p1">let modText = "";</p>
-<p class="p1">let isGeneratingJoke = false;</p>
-<p class="p2"><br></p>
-<p class="p1">const appContainer = document.getElementById('app-container');</p>
-<p class="p2"><br></p>
-<p class="p1">// --- GEMINI API ---</p>
-<p class="p1">async function fetchGemini(prompt, systemPrompt = "You are a helpful, encouraging fitness and curling coach.") {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const apiKey = "";<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const payload = {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>contents: [{ parts: [{ text: prompt }] }],</p>
-<p class="p1"><span class="Apple-converted-space">    </span>systemInstruction: { parts: [{ text: systemPrompt }] }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>let delay = 1000;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>for (let i = 0; i &lt; 5; i++) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const response = await fetch(url, {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>method: 'POST',</p>
-<p class="p1"><span class="Apple-converted-space">        </span>headers: { 'Content-Type': 'application/json' },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>body: JSON.stringify(payload)</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const data = await response.json();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't think of anything right now!";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>} catch (error) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (i === 4) return "Sorry, I'm having trouble connecting right now. Please try again later!";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>await new Promise(res =&gt; setTimeout(res, delay));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>delay *= 2;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// --- LOGIC FUNCTIONS ---</p>
-<p class="p1">function generateDailyRoutine(currentLevel) {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const getRandom = arr =&gt; arr[Math.floor(Math.random() * arr.length)];</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const routine = [</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ ...getRandom(EXERCISE_POOL.flatFeet), category: 'Flat Feet Prep' },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ ...getRandom(EXERCISE_POOL.balance), category: 'Balance Building' },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ ...getRandom(EXERCISE_POOL.hamstrings), category: 'No-Toe-Touch Hamstrings' },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ ...getRandom(EXERCISE_POOL.hips), category: 'Hip Mobility' },</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{ ...getRandom(EXERCISE_POOL.curling), category: 'Curling Specific' }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Fisher-Yates shuffle</p>
-<p class="p1"><span class="Apple-converted-space">  </span>for (let i = routine.length - 1; i &gt; 0; i--) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const j = Math.floor(Math.random() * (i + 1));</p>
-<p class="p1"><span class="Apple-converted-space">    </span>[routine[i], routine[j]] = [routine[j], routine[i]];</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const extraTime = (currentLevel - 1) * 6;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>return routine.map(ex =&gt; ({ ...ex, time: ex.baseTime + extraTime }));</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">function startWorkout() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>currentRoutine = generateDailyRoutine(level);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>currentExIndex = 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>timeLeft = currentRoutine[0].time;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>modText = "";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>hasSwitched = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>isHalfwayPaused = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>timerActive = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>appState = 'workout';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>render();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">function nextExercise() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>modText = "";<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>hasSwitched = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>isHalfwayPaused = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (currentExIndex &lt; currentRoutine.length - 1) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>currentExIndex++;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>timeLeft = currentRoutine[currentExIndex].time;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>timerActive = false;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>render();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>finishWorkout();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">function toggleTimer() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if(timeLeft &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>timerActive = !timerActive;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>render();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">function resumeHalfway() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>isHalfwayPaused = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>timerActive = true;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>render();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">function finishWorkout() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>workoutsCompleted++;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (workoutsCompleted % 3 === 0) level++;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>currentJoke = JOKES[Math.floor(Math.random() * JOKES.length)];<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>appState = 'done';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>render();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">function goHome() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>appState = 'home';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>render();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">async function requestMod() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const currentEx = currentRoutine[currentExIndex];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>isGeneratingMod = true;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>render(); // show loading</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const prompt = `My user is 45 years old, weighs 250 pounds, has flat feet, struggles with balance, and cannot touch their toes.<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>They are trying to do the exercise "${currentEx.name}" which is described as: "${currentEx.desc}".<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>Provide a brief, encouraging 1-2 sentence modification to make this exercise safer, easier, or more accessible for them.`;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>modText = await fetchGemini(prompt);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>isGeneratingMod = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>render(); // show result</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">async function generateJoke() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>isGeneratingJoke = true;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>render(); // show loading</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const prompt = "Tell me a short, clean, funny dad joke about the sport of curling.";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const response = await fetchGemini(prompt, "You are a comedian who loves curling.");</p>
-<p class="p1"><span class="Apple-converted-space">    </span>currentJoke = response.replace(/^["']|["']$/g, '').trim();</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>isGeneratingJoke = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>render(); // show result</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Timer Loop</p>
-<p class="p1">setInterval(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (!timerActive || timeLeft &lt;= 0) return;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const currentEx = currentRoutine[currentExIndex];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const halfway = Math.floor(currentEx.time / 2);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (currentEx.requiresSwitch &amp;&amp; timeLeft === halfway &amp;&amp; !hasSwitched) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>timerActive = false;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>hasSwitched = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>isHalfwayPaused = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>render();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>timeLeft--;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (timeLeft === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>timerActive = false;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if ("vibrate" in navigator) navigator.vibrate(500);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>render();</p>
-<p class="p1">}, 1000);</p>
-<p class="p2"><br></p>
-<p class="p1">// --- RENDERING ---</p>
-<p class="p1">function render() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (appState === 'home') {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>appContainer.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="min-h-screen bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 flex flex-col items-center justify-center p-6 text-white font-sans"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/20 text-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-yellow-400 text-blue-900 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>${ICONS.refresh}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1 class="text-4xl font-extrabold mb-2 tracking-tight"&gt;Sweep &amp; Stretch&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-blue-100 mb-8 text-lg"&gt;Your pre-curling flexibility prep.&lt;/p&gt;</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex justify-around mb-8 bg-black/20 rounded-2xl p-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="text-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-blue-200 uppercase tracking-wider font-semibold"&gt;Level&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-3xl font-bold text-yellow-300"&gt;${level}&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-px bg-white/20"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="text-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-blue-200 uppercase tracking-wider font-semibold"&gt;Sessions&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-3xl font-bold text-yellow-300"&gt;${workoutsCompleted}&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-white/10 p-4 rounded-xl mb-8 italic text-sm text-blue-50"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>"${currentJoke}"</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="startWorkout()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 font-bold text-xl py-4 rounded-2xl shadow-xl transform transition active:scale-95 flex items-center justify-center gap-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>${ICONS.play} Let's Go!</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>else if (appState === 'workout') {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const currentEx = currentRoutine[currentExIndex];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const isLast = currentExIndex === currentRoutine.length - 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const progressPercent = ((currentExIndex) / currentRoutine.length) * 100;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let modSectionHTML = "";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!modText &amp;&amp; !isGeneratingMod) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>modSectionHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="requestMod()" class="text-blue-600 font-semibold text-sm flex items-center gap-2 hover:text-blue-800 transition-colors bg-blue-50/50 px-4 py-2 rounded-xl"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>${ICONS.sparkles} ✨ Need an easier modification?</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} else if (isGeneratingMod) {</p>
-<p class="p1"><span class="Apple-converted-space">             </span>modSectionHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center gap-2 text-blue-500 text-sm font-medium px-4 py-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>${ICONS.loader} Asking Coach Gemini...</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">             </span>modSectionHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-5 flex items-start gap-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div class="text-indigo-500 shrink-0 mt-1"&gt;${ICONS.sparkles}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="font-bold text-indigo-900 mb-1 text-sm uppercase tracking-wider"&gt;Coach's Modification&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-indigo-800 text-base leading-relaxed"&gt;${modText}&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const strokeDashoffset = 552 - (552 * timeLeft) / currentEx.time;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const timerColorClass = isHalfwayPaused ? 'text-orange-500' : (timeLeft === 0 ? 'text-green-500' : 'text-blue-500');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let timerCenterContent = "";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (isHalfwayPaused) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>timerCenterContent = `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="text-2xl font-black text-orange-500 uppercase tracking-widest text-center px-4"&gt;Switch&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="text-2xl font-black text-orange-500 uppercase tracking-widest text-center px-4 mt-[-4px]"&gt;Sides&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>timerCenterContent = `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="text-6xl font-black tabular-nums ${timeLeft === 0 ? 'text-green-500' : 'text-neutral-800'}"&gt;${timeLeft}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="text-neutral-400 font-bold uppercase tracking-widest text-xs mt-1"&gt;Seconds&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let buttonsHTML = "";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (isHalfwayPaused) {</p>
-<p class="p1"><span class="Apple-converted-space">             </span>buttonsHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="resumeHalfway()" class="flex-1 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-lg shadow-orange-200 transform transition active:scale-95 animate-pulse"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                  </span>${ICONS.play} Resume Other Side</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">             </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const btnClass = timeLeft === 0<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>? 'bg-neutral-200 text-neutral-400 cursor-not-allowed'<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>: timerActive<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>? 'bg-red-100 text-red-600 border-2 border-red-200'<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>: 'bg-green-100 text-green-700 border-2 border-green-200';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const btnIcon = timerActive ? ICONS.pause : ICONS.play;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const btnText = timerActive ? "Pause" : "Start";</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const nextClass = timeLeft === 0<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>? 'bg-blue-600 text-white shadow-lg shadow-blue-200'<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>: 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200';</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>buttonsHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="toggleTimer()" ${timeLeft === 0 ? 'disabled' : ''} class="flex-1 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition transform active:scale-95 ${btnClass}"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>${btnIcon} ${btnText}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="nextExercise()" class="flex-1 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition transform active:scale-95 ${nextClass}"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>${isLast ? 'Finish' : 'Next'} ${ICONS.chevronRight}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>appContainer.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="min-h-screen bg-neutral-50 flex flex-col font-sans max-w-md mx-auto shadow-2xl overflow-hidden relative"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex justify-between items-center mb-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-neutral-400 font-bold tracking-wider text-sm uppercase"&gt;Exercise ${currentExIndex + 1} of ${currentRoutine.length}&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button onclick="goHome()" class="text-neutral-400 hover:text-neutral-600 font-semibold text-sm"&gt;Cancel&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="w-full bg-neutral-200 h-2 rounded-full overflow-hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-blue-500 h-full transition-all duration-500 ease-out" style="width: ${progressPercent}%"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex-1 px-6 py-8 flex flex-col justify-between overflow-y-auto"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex items-center justify-between mb-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="inline-block bg-pink-100 text-pink-700 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>${currentEx.category}</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>${currentEx.requiresSwitch ? `</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="flex items-center gap-1 text-orange-500 font-bold text-xs uppercase bg-orange-100 px-2 py-1 rounded-full"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>${ICONS.arrowRightLeft} 2 Sides</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/span&gt;` : ''}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">                    </span></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-3xl font-extrabold text-neutral-800 mb-6 leading-tight"&gt;${currentEx.name}&lt;/h2&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-full h-48 mb-6 rounded-2xl bg-white border-2 border-dashed border-blue-200 flex items-center justify-center p-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;svg viewBox="0 0 100 100" class="w-full h-full stroke-blue-600 fill-transparent" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>${getSketchPath(currentEx.id)}</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/svg&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 flex items-start gap-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="text-blue-500 shrink-0 mt-1"&gt;${ICONS.info}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-neutral-700 text-lg leading-relaxed"&gt;${currentEx.desc}&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-4 min-h-[60px]"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>${modSectionHTML}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="mt-8 flex flex-col items-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="relative"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;svg class="w-48 h-48 transform -rotate-90"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;circle cx="96" cy="96" r="88" stroke="currentColor" stroke-width="8" fill="transparent" class="text-neutral-200" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;circle cx="96" cy="96" r="88" stroke="currentColor" stroke-width="8" fill="transparent" stroke-dasharray="552" stroke-dashoffset="${strokeDashoffset}" stroke-linecap="round" class="timer-circle ${timerColorClass}" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/svg&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>${timerCenterContent}</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex gap-4 mt-8 w-full"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>${buttonsHTML}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>else if (appState === 'done') {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const jokeBtnContent = isGeneratingJoke<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>? `${ICONS.loader} Thinking...`<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>: `${ICONS.sparkles} ✨ Generate New Joke`;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>appContainer.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="min-h-screen bg-gradient-to-br from-green-400 to-emerald-600 flex flex-col items-center justify-center p-6 text-white font-sans"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/20 text-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-white text-green-500 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>${ICONS.checkCircle}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1 class="text-4xl font-extrabold mb-2 tracking-tight"&gt;Great Job!&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-green-100 mb-6 text-lg"&gt;You're one step closer to sweeping the competition on the ice.&lt;/p&gt;</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-black/20 rounded-2xl p-6 mb-8 text-left flex items-start gap-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="text-yellow-300 shrink-0"&gt;${ICONS.smile}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex-1"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="font-bold text-white mb-1"&gt;Coach's Joke of the Day:&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-green-50 italic mb-4"&gt;"${currentJoke}"&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button onclick="generateJoke()" ${isGeneratingJoke ? 'disabled' : ''} class="bg-white/20 hover:bg-white/30 text-white text-sm font-semibold py-2 px-4 rounded-xl flex items-center gap-2 transition-colors disabled:opacity-50"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>${jokeBtnContent}</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="goHome()" class="w-full bg-white text-green-700 font-bold text-xl py-4 rounded-2xl shadow-xl transform transition active:scale-95"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>Back to Home</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Initial Render</p>
-<p class="p1">render();</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+<body class="bg-neutral-50 font-sans antialiased text-neutral-900 selection:bg-blue-200">
+
+    <div id="app-container" class="w-full min-h-screen">
+        <!-- Views will be toggled here -->
+    </div>
+
+<script>
+// --- DATA & JOKES ---
+const JOKES = [
+  "Why did the curler bring a broom to the bar? To sweep the competition!",
+  "What is a curler's favorite type of music? Heavy metal (because of the stones)!",
+  "Why are curlers so good at cleaning? They always sweep the house!",
+  "What did the ice say to the curling stone? You rock!",
+  "I tried to make a curling joke... but it didn't have the right delivery.",
+  "How do curlers stay cool? They hang out near the hack!",
+  "Keep your friends close, and your curling stones closer."
+];
+
+const EXERCISE_POOL = {
+  flatFeet: [
+    { id: 'arch', name: "Short Foot / Arch Lifts", desc: "Sit or stand. Without curling your toes, pull the ball of your foot toward your heel to create an arch. Hold, then release.", baseTime: 30, requiresSwitch: false },
+    { id: 'toe_yoga', name: "Toe Yoga", desc: "Keep your big toe down and lift the other four. Then keep the four down and lift the big toe. Great for foot control!", baseTime: 40, requiresSwitch: false },
+    { id: 'calf', name: "Seated Calf Raises", desc: "Sit up tall. Push through the balls of your feet to lift your heels high. Slowly lower. Strengthens the arch and calf.", baseTime: 45, requiresSwitch: false },
+  ],
+  balance: [
+    { id: 'single_leg', name: "Chair-Supported Single Leg Stand", desc: "Stand next to a sturdy chair. Hold the chair, lift one foot. Try to let go with one finger at a time. Wobbling is normal!", baseTime: 40, requiresSwitch: true },
+    { id: 'tandem', name: "Tandem Stance (Heel-to-Toe)", desc: "Stand near a wall. Place one foot directly in front of the other, heel touching toe. Hold your balance.", baseTime: 40, requiresSwitch: true },
+    { id: 'weight_shift', name: "Weight Shifts", desc: "Stand with feet hip-width. Shift your weight entirely to your right leg, pause, then to your left. Keep a chair in front of you.", baseTime: 40, requiresSwitch: false },
+  ],
+  hamstrings: [
+    { id: 'towel', name: "Seated Towel Stretch", desc: "Sit on the floor. Loop a towel around one foot. Gently pull the towel to stretch the back of your leg. Keep your back straight.", baseTime: 60, requiresSwitch: true },
+    { id: 'chair_ham', name: "Chair Hamstring Stretch", desc: "Sit on the edge of a chair. Extend one leg out straight, heel on the floor. Hinge forward slightly at the hips.", baseTime: 60, requiresSwitch: true },
+    { id: 'wall_ham', name: "Wall Supported Hamstring", desc: "Lie on your back near a doorway. Put one leg straight up the wall/doorframe, the other through the door. Relax.", baseTime: 60, requiresSwitch: true },
+  ],
+  hips: [
+    { id: 'figure4', name: "Seated Figure 4", desc: "Sit in a chair. Cross your right ankle over your left knee. Gently press the right knee down or lean forward slightly.", baseTime: 60, requiresSwitch: true },
+    { id: 'kneel_lunge', name: "Kneeling Lunge Stretch", desc: "Kneel on a soft pillow. Step one foot forward so your knee is at 90 degrees. Gently shift weight forward. Hold a wall!", baseTime: 60, requiresSwitch: true },
+  ],
+  curling: [
+    { id: 'broom', name: "The Broom Twist", desc: "Sit or stand holding a broom (or imaginary broom) across your shoulders. Gently twist your torso side to side.", baseTime: 45, requiresSwitch: false },
+    { id: 'slider', name: "Supported Slider Lunge", desc: "Hold a chair. Step one foot back and drop your hips slightly into a mini-lunge, mimicking a curling slide. Don't go deep!", baseTime: 40, requiresSwitch: true },
+  ]
+};
+
+// --- SVG ASSETS ---
+const ICONS = {
+    play: `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`,
+    pause: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`,
+    chevronRight: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`,
+    refresh: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transform rotate-45"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"></path><path d="M3.51 15A9 9 0 0 0 18.36 18.36L23 14"></path></svg>`,
+    checkCircle: `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+    smile: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>`,
+    sparkles: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>`,
+    loader: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin-slow"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>`,
+    arrowRightLeft: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"></path><path d="M20 7H4"></path><path d="m8 21-4-4 4-4"></path><path d="M4 17h16"></path></svg>`,
+    info: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`
+};
+
+function getSketchPath(id) {
+    switch(id) {
+      case 'arch': return '<path d="M 20 80 Q 45 65 70 80 L 85 90 L 15 90 Z" />';
+      case 'toe_yoga': return '<path d="M 20 85 L 50 85 L 75 70 M 50 85 L 80 80 M 50 85 L 85 90" />';
+      case 'calf': return '<rect x="15" y="45" width="25" height="40" stroke="none" fill="#e2e8f0" /><circle cx="30" cy="15" r="8" /><path d="M 30 23 L 30 50 M 30 50 L 55 50 M 55 50 L 55 80 M 55 80 L 70 95" />';
+      case 'single_leg': return '<rect x="70" y="40" width="15" height="50" stroke="none" fill="#e2e8f0" /><circle cx="40" cy="15" r="8" /><path d="M 40 23 L 40 55 M 40 55 L 40 90 M 40 55 L 55 55 M 55 55 L 55 80 M 40 35 L 70 45 M 40 35 L 20 50" />';
+      case 'tandem': return '<circle cx="50" cy="15" r="8" /><path d="M 50 23 L 50 60 M 50 60 L 35 90 M 35 90 L 55 90 M 50 60 L 65 90 M 65 90 L 85 90 M 50 35 L 20 45 M 50 35 L 80 45" />';
+      case 'weight_shift': return '<circle cx="60" cy="15" r="8" /><path d="M 60 23 L 50 55 M 50 55 L 40 90 M 50 55 L 70 90 M 60 35 L 30 40 M 60 35 L 85 45" />';
+      case 'towel': return '<circle cx="25" cy="40" r="8" /><path d="M 25 48 L 25 80 M 25 80 L 80 80 M 25 55 L 75 75 M 75 75 L 80 80 M 25 80 L 15 80" />';
+      case 'chair_ham': return '<rect x="10" y="45" width="25" height="40" stroke="none" fill="#e2e8f0" /><circle cx="25" cy="15" r="8" /><path d="M 25 23 L 25 50 M 25 50 L 40 50 L 40 90 M 25 50 L 75 90 M 25 35 L 45 45" />';
+      case 'wall_ham': return '<rect x="65" y="10" width="10" height="80" stroke="none" fill="#e2e8f0" /><circle cx="20" cy="80" r="8" /><path d="M 28 80 L 60 80 M 60 80 L 60 25 M 60 80 L 90 80 M 40 80 L 50 65" />';
+      case 'figure4': return '<rect x="30" y="45" width="25" height="40" stroke="none" fill="#e2e8f0" /><circle cx="40" cy="15" r="8" /><path d="M 40 23 L 40 50 M 40 50 L 60 50 L 60 90 M 40 50 L 70 45 L 60 70 M 40 35 L 60 40" />';
+      case 'kneel_lunge': return '<circle cx="40" cy="20" r="8" /><path d="M 40 28 L 40 55 M 40 55 L 20 85 L 40 85 M 40 55 L 65 55 L 65 85 M 40 40 L 60 45 L 60 70" />';
+      case 'broom': return '<circle cx="50" cy="15" r="8" /><path d="M 50 23 L 50 65 M 50 65 L 40 90 M 50 65 L 60 90 M 15 30 L 85 30 M 50 35 L 30 35 M 50 35 L 70 35" stroke-width="5" />';
+      case 'slider': return '<rect x="70" y="55" width="15" height="30" stroke="none" fill="#e2e8f0" /><circle cx="35" cy="25" r="8" /><path d="M 35 33 L 55 60 M 55 60 L 20 85 M 55 60 L 75 60 L 75 85 M 35 45 L 75 55" />';
+      default: return '<circle cx="50" cy="50" r="20" />';
+    }
+}
+
+// --- STATE MANAGEMENT ---
+let appState = 'home'; 
+let level = 1;
+let workoutsCompleted = 0;
+let currentJoke = JOKES[Math.floor(Math.random() * JOKES.length)];
+
+let currentRoutine = [];
+let currentExIndex = 0;
+let timeLeft = 0;
+let timerActive = false;
+let hasSwitched = false;
+let isHalfwayPaused = false;
+
+let isGeneratingMod = false;
+let modText = "";
+let isGeneratingJoke = false;
+
+const appContainer = document.getElementById('app-container');
+
+// --- GEMINI API ---
+async function fetchGemini(prompt, systemPrompt = "You are a helpful, encouraging fitness and curling coach.") {
+  const apiKey = ""; 
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+  
+  const payload = {
+    contents: [{ parts: [{ text: prompt }] }],
+    systemInstruction: { parts: [{ text: systemPrompt }] }
+  };
+
+  let delay = 1000;
+  for (let i = 0; i < 5; i++) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't think of anything right now!";
+    } catch (error) {
+      if (i === 4) return "Sorry, I'm having trouble connecting right now. Please try again later!";
+      await new Promise(res => setTimeout(res, delay));
+      delay *= 2;
+    }
+  }
+}
+
+// --- LOGIC FUNCTIONS ---
+function generateDailyRoutine(currentLevel) {
+  const getRandom = arr => arr[Math.floor(Math.random() * arr.length)];
+  const routine = [
+    { ...getRandom(EXERCISE_POOL.flatFeet), category: 'Flat Feet Prep' },
+    { ...getRandom(EXERCISE_POOL.balance), category: 'Balance Building' },
+    { ...getRandom(EXERCISE_POOL.hamstrings), category: 'No-Toe-Touch Hamstrings' },
+    { ...getRandom(EXERCISE_POOL.hips), category: 'Hip Mobility' },
+    { ...getRandom(EXERCISE_POOL.curling), category: 'Curling Specific' }
+  ];
+
+  // Fisher-Yates shuffle
+  for (let i = routine.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [routine[i], routine[j]] = [routine[j], routine[i]];
+  }
+
+  const extraTime = (currentLevel - 1) * 6; 
+  return routine.map(ex => ({ ...ex, time: ex.baseTime + extraTime }));
+}
+
+function startWorkout() {
+    currentRoutine = generateDailyRoutine(level);
+    currentExIndex = 0;
+    timeLeft = currentRoutine[0].time;
+    modText = "";
+    hasSwitched = false;
+    isHalfwayPaused = false;
+    timerActive = false;
+    appState = 'workout';
+    render();
+}
+
+function nextExercise() {
+    modText = ""; 
+    hasSwitched = false;
+    isHalfwayPaused = false;
+    if (currentExIndex < currentRoutine.length - 1) {
+      currentExIndex++;
+      timeLeft = currentRoutine[currentExIndex].time;
+      timerActive = false;
+      render();
+    } else {
+      finishWorkout();
+    }
+}
+
+function toggleTimer() {
+    if(timeLeft > 0) {
+        timerActive = !timerActive;
+        render();
+    }
+}
+
+function resumeHalfway() {
+    isHalfwayPaused = false;
+    timerActive = true;
+    render();
+}
+
+function finishWorkout() {
+    workoutsCompleted++;
+    if (workoutsCompleted % 3 === 0) level++;
+    currentJoke = JOKES[Math.floor(Math.random() * JOKES.length)]; 
+    appState = 'done';
+    render();
+}
+
+function goHome() {
+    appState = 'home';
+    render();
+}
+
+async function requestMod() {
+    const currentEx = currentRoutine[currentExIndex];
+    isGeneratingMod = true;
+    render(); // show loading
+    
+    const prompt = `My user is 45 years old, weighs 250 pounds, has flat feet, struggles with balance, and cannot touch their toes. 
+    They are trying to do the exercise "${currentEx.name}" which is described as: "${currentEx.desc}". 
+    Provide a brief, encouraging 1-2 sentence modification to make this exercise safer, easier, or more accessible for them.`;
+    
+    modText = await fetchGemini(prompt);
+    isGeneratingMod = false;
+    render(); // show result
+}
+
+async function generateJoke() {
+    isGeneratingJoke = true;
+    render(); // show loading
+    
+    const prompt = "Tell me a short, clean, funny dad joke about the sport of curling.";
+    const response = await fetchGemini(prompt, "You are a comedian who loves curling.");
+    currentJoke = response.replace(/^["']|["']$/g, '').trim();
+    
+    isGeneratingJoke = false;
+    render(); // show result
+}
+
+// Timer Loop
+setInterval(() => {
+    if (!timerActive || timeLeft <= 0) return;
+    
+    const currentEx = currentRoutine[currentExIndex];
+    const halfway = Math.floor(currentEx.time / 2);
+
+    if (currentEx.requiresSwitch && timeLeft === halfway && !hasSwitched) {
+        timerActive = false;
+        hasSwitched = true;
+        isHalfwayPaused = true;
+        if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+        render();
+        return; 
+    }
+
+    timeLeft--;
+    if (timeLeft === 0) {
+        timerActive = false;
+        if ("vibrate" in navigator) navigator.vibrate(500);
+    }
+    render();
+}, 1000);
+
+// --- RENDERING ---
+function render() {
+    if (appState === 'home') {
+        appContainer.innerHTML = `
+        <div class="min-h-screen bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 flex flex-col items-center justify-center p-6 text-white font-sans">
+            <div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/20 text-center">
+                <div class="bg-yellow-400 text-blue-900 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    ${ICONS.refresh}
+                </div>
+                <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Sweep & Stretch</h1>
+                <p class="text-blue-100 mb-8 text-lg">Your pre-curling flexibility prep.</p>
+                
+                <div class="flex justify-around mb-8 bg-black/20 rounded-2xl p-4">
+                    <div class="text-center">
+                        <p class="text-sm text-blue-200 uppercase tracking-wider font-semibold">Level</p>
+                        <p class="text-3xl font-bold text-yellow-300">${level}</p>
+                    </div>
+                    <div class="w-px bg-white/20"></div>
+                    <div class="text-center">
+                        <p class="text-sm text-blue-200 uppercase tracking-wider font-semibold">Sessions</p>
+                        <p class="text-3xl font-bold text-yellow-300">${workoutsCompleted}</p>
+                    </div>
+                </div>
+
+                <div class="bg-white/10 p-4 rounded-xl mb-8 italic text-sm text-blue-50">
+                    "${currentJoke}"
+                </div>
+
+                <button onclick="startWorkout()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 font-bold text-xl py-4 rounded-2xl shadow-xl transform transition active:scale-95 flex items-center justify-center gap-2">
+                    ${ICONS.play} Let's Go!
+                </button>
+            </div>
+        </div>`;
+    } 
+    else if (appState === 'workout') {
+        const currentEx = currentRoutine[currentExIndex];
+        const isLast = currentExIndex === currentRoutine.length - 1;
+        const progressPercent = ((currentExIndex) / currentRoutine.length) * 100;
+        
+        let modSectionHTML = "";
+        if (!modText && !isGeneratingMod) {
+            modSectionHTML = `
+                <button onclick="requestMod()" class="text-blue-600 font-semibold text-sm flex items-center gap-2 hover:text-blue-800 transition-colors bg-blue-50/50 px-4 py-2 rounded-xl">
+                    ${ICONS.sparkles} ✨ Need an easier modification?
+                </button>`;
+        } else if (isGeneratingMod) {
+             modSectionHTML = `
+                <div class="flex items-center gap-2 text-blue-500 text-sm font-medium px-4 py-2">
+                    ${ICONS.loader} Asking Coach Gemini...
+                </div>`;
+        } else {
+             modSectionHTML = `
+                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-5 flex items-start gap-4">
+                  <div class="text-indigo-500 shrink-0 mt-1">${ICONS.sparkles}</div>
+                  <div>
+                    <p class="font-bold text-indigo-900 mb-1 text-sm uppercase tracking-wider">Coach's Modification</p>
+                    <p class="text-indigo-800 text-base leading-relaxed">${modText}</p>
+                  </div>
+                </div>`;
+        }
+
+        const strokeDashoffset = 552 - (552 * timeLeft) / currentEx.time;
+        const timerColorClass = isHalfwayPaused ? 'text-orange-500' : (timeLeft === 0 ? 'text-green-500' : 'text-blue-500');
+
+        let timerCenterContent = "";
+        if (isHalfwayPaused) {
+            timerCenterContent = `
+                <span class="text-2xl font-black text-orange-500 uppercase tracking-widest text-center px-4">Switch</span>
+                <span class="text-2xl font-black text-orange-500 uppercase tracking-widest text-center px-4 mt-[-4px]">Sides</span>
+            `;
+        } else {
+            timerCenterContent = `
+                <span class="text-6xl font-black tabular-nums ${timeLeft === 0 ? 'text-green-500' : 'text-neutral-800'}">${timeLeft}</span>
+                <span class="text-neutral-400 font-bold uppercase tracking-widest text-xs mt-1">Seconds</span>
+            `;
+        }
+
+        let buttonsHTML = "";
+        if (isHalfwayPaused) {
+             buttonsHTML = `
+                <button onclick="resumeHalfway()" class="flex-1 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-lg shadow-orange-200 transform transition active:scale-95 animate-pulse">
+                  ${ICONS.play} Resume Other Side
+                </button>
+             `;
+        } else {
+            const btnClass = timeLeft === 0 
+                ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed' 
+                : timerActive 
+                    ? 'bg-red-100 text-red-600 border-2 border-red-200' 
+                    : 'bg-green-100 text-green-700 border-2 border-green-200';
+            const btnIcon = timerActive ? ICONS.pause : ICONS.play;
+            const btnText = timerActive ? "Pause" : "Start";
+            
+            const nextClass = timeLeft === 0 
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200';
+
+            buttonsHTML = `
+                <button onclick="toggleTimer()" ${timeLeft === 0 ? 'disabled' : ''} class="flex-1 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition transform active:scale-95 ${btnClass}">
+                    ${btnIcon} ${btnText}
+                </button>
+                <button onclick="nextExercise()" class="flex-1 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition transform active:scale-95 ${nextClass}">
+                    ${isLast ? 'Finish' : 'Next'} ${ICONS.chevronRight}
+                </button>
+            `;
+        }
+
+        appContainer.innerHTML = `
+        <div class="min-h-screen bg-neutral-50 flex flex-col font-sans max-w-md mx-auto shadow-2xl overflow-hidden relative">
+            <div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-neutral-400 font-bold tracking-wider text-sm uppercase">Exercise ${currentExIndex + 1} of ${currentRoutine.length}</p>
+                    <button onclick="goHome()" class="text-neutral-400 hover:text-neutral-600 font-semibold text-sm">Cancel</button>
+                </div>
+                <div class="w-full bg-neutral-200 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-500 h-full transition-all duration-500 ease-out" style="width: ${progressPercent}%"></div>
+                </div>
+            </div>
+
+            <div class="flex-1 px-6 py-8 flex flex-col justify-between overflow-y-auto">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="inline-block bg-pink-100 text-pink-700 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider">
+                            ${currentEx.category}
+                        </span>
+                        ${currentEx.requiresSwitch ? `
+                        <span class="flex items-center gap-1 text-orange-500 font-bold text-xs uppercase bg-orange-100 px-2 py-1 rounded-full">
+                            ${ICONS.arrowRightLeft} 2 Sides
+                        </span>` : ''}
+                    </div>
+                    
+                    <h2 class="text-3xl font-extrabold text-neutral-800 mb-6 leading-tight">${currentEx.name}</h2>
+
+                    <div class="w-full h-48 mb-6 rounded-2xl bg-white border-2 border-dashed border-blue-200 flex items-center justify-center p-4">
+                        <svg viewBox="0 0 100 100" class="w-full h-full stroke-blue-600 fill-transparent" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                            ${getSketchPath(currentEx.id)}
+                        </svg>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 flex items-start gap-4">
+                        <div class="text-blue-500 shrink-0 mt-1">${ICONS.info}</div>
+                        <p class="text-neutral-700 text-lg leading-relaxed">${currentEx.desc}</p>
+                    </div>
+
+                    <div class="mt-4 min-h-[60px]">
+                        ${modSectionHTML}
+                    </div>
+                </div>
+
+                <div class="mt-8 flex flex-col items-center">
+                    <div class="relative">
+                        <svg class="w-48 h-48 transform -rotate-90">
+                            <circle cx="96" cy="96" r="88" stroke="currentColor" stroke-width="8" fill="transparent" class="text-neutral-200" />
+                            <circle cx="96" cy="96" r="88" stroke="currentColor" stroke-width="8" fill="transparent" stroke-dasharray="552" stroke-dashoffset="${strokeDashoffset}" stroke-linecap="round" class="timer-circle ${timerColorClass}" />
+                        </svg>
+                        <div class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center">
+                            ${timerCenterContent}
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-8 w-full">
+                        ${buttonsHTML}
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+    else if (appState === 'done') {
+        const jokeBtnContent = isGeneratingJoke 
+            ? `${ICONS.loader} Thinking...` 
+            : `${ICONS.sparkles} ✨ Generate New Joke`;
+
+        appContainer.innerHTML = `
+        <div class="min-h-screen bg-gradient-to-br from-green-400 to-emerald-600 flex flex-col items-center justify-center p-6 text-white font-sans">
+            <div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/20 text-center">
+                <div class="bg-white text-green-500 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                    ${ICONS.checkCircle}
+                </div>
+                <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Great Job!</h1>
+                <p class="text-green-100 mb-6 text-lg">You're one step closer to sweeping the competition on the ice.</p>
+                
+                <div class="bg-black/20 rounded-2xl p-6 mb-8 text-left flex items-start gap-4">
+                    <div class="text-yellow-300 shrink-0">${ICONS.smile}</div>
+                    <div class="flex-1">
+                        <p class="font-bold text-white mb-1">Coach's Joke of the Day:</p>
+                        <p class="text-green-50 italic mb-4">"${currentJoke}"</p>
+                        <button onclick="generateJoke()" ${isGeneratingJoke ? 'disabled' : ''} class="bg-white/20 hover:bg-white/30 text-white text-sm font-semibold py-2 px-4 rounded-xl flex items-center gap-2 transition-colors disabled:opacity-50">
+                            ${jokeBtnContent}
+                        </button>
+                    </div>
+                </div>
+
+                <button onclick="goHome()" class="w-full bg-white text-green-700 font-bold text-xl py-4 rounded-2xl shadow-xl transform transition active:scale-95">
+                    Back to Home
+                </button>
+            </div>
+        </div>`;
+    }
+}
+
+// Initial Render
+render();
+
+</script>
 </body>
 </html>
