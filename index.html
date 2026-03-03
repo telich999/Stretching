@@ -9,7 +9,6 @@
         .timer-circle {
             transition: stroke-dashoffset 1s linear, color 0.5s ease;
         }
-        /* Simple spinner animation for loading */
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -34,36 +33,49 @@ const JOKES = [
   "What did the ice say to the curling stone? You rock!",
   "I tried to make a curling joke... but it didn't have the right delivery.",
   "How do curlers stay cool? They hang out near the hack!",
-  "Keep your friends close, and your curling stones closer."
+  "Keep your friends close, and your curling stones closer.",
+  "What do you call a curler who just broke up? A free guard.",
+  "Curling is the only sport where yelling 'HARD!' gets you polite applause.",
+  "Why do curlers make great detectives? They leave no stone unturned."
 ];
 
+// Expanded Exercise Pool for maximum variety and balance training
 const EXERCISE_POOL = {
   flatFeet: [
     { id: 'arch', name: "Short Foot / Arch Lifts", desc: "Sit or stand. Without curling your toes, pull the ball of your foot toward your heel to create an arch. Hold, then release.", baseTime: 30, requiresSwitch: false },
     { id: 'toe_yoga', name: "Toe Yoga", desc: "Keep your big toe down and lift the other four. Then keep the four down and lift the big toe. Great for foot control!", baseTime: 40, requiresSwitch: false },
     { id: 'calf', name: "Seated Calf Raises", desc: "Sit up tall. Push through the balls of your feet to lift your heels high. Slowly lower. Strengthens the arch and calf.", baseTime: 45, requiresSwitch: false },
+    { id: 'towel_scrunch', name: "Towel Scrunches", desc: "Take off your shoes. Place a hand towel flat on the floor. Use your bare toes to scrunch the towel up toward you. Excellent for flat feet.", baseTime: 40, requiresSwitch: true },
+    { id: 'ankle_circles', name: "Ankle Circles", desc: "Sit in a chair. Lift one foot off the ground and slowly draw big circles with your big toe. Switch directions halfway.", baseTime: 40, requiresSwitch: true }
   ],
   balance: [
     { id: 'single_leg', name: "Chair-Supported Single Leg Stand", desc: "Stand next to a sturdy chair. Hold the chair, lift one foot. Try to let go with one finger at a time. Wobbling is normal!", baseTime: 40, requiresSwitch: true },
     { id: 'tandem', name: "Tandem Stance (Heel-to-Toe)", desc: "Stand near a wall. Place one foot directly in front of the other, heel touching toe. Hold your balance.", baseTime: 40, requiresSwitch: true },
     { id: 'weight_shift', name: "Weight Shifts", desc: "Stand with feet hip-width. Shift your weight entirely to your right leg, pause, then to your left. Keep a chair in front of you.", baseTime: 40, requiresSwitch: false },
+    { id: 'pillow_stand', name: "Flamingo Pillow Stand", desc: "Place a couch cushion or firm pillow on the floor near a wall. Stand on it with ONE foot. The unstable surface forces your flat foot to work hard!", baseTime: 40, requiresSwitch: true },
+    { id: 'clock_taps', name: "Clock Taps", desc: "Stand on one leg (hold a chair if needed). With your hovering foot, tap the floor at 12 o'clock, 3 o'clock, and 6 o'clock. Repeat.", baseTime: 40, requiresSwitch: true }
   ],
   hamstrings: [
     { id: 'towel', name: "Seated Towel Stretch", desc: "Sit on the floor. Loop a towel around one foot. Gently pull the towel to stretch the back of your leg. Keep your back straight.", baseTime: 60, requiresSwitch: true },
     { id: 'chair_ham', name: "Chair Hamstring Stretch", desc: "Sit on the edge of a chair. Extend one leg out straight, heel on the floor. Hinge forward slightly at the hips.", baseTime: 60, requiresSwitch: true },
     { id: 'wall_ham', name: "Wall Supported Hamstring", desc: "Lie on your back near a doorway. Put one leg straight up the wall/doorframe, the other through the door. Relax.", baseTime: 60, requiresSwitch: true },
+    { id: 'good_morning', name: "Chair Good Mornings", desc: "Stand behind a chair holding the back. Keep your legs mostly straight and your back perfectly flat. Hinge forward at the hips until you feel a hamstring stretch, then stand back up.", baseTime: 45, requiresSwitch: false }
   ],
   hips: [
     { id: 'figure4', name: "Seated Figure 4", desc: "Sit in a chair. Cross your right ankle over your left knee. Gently press the right knee down or lean forward slightly.", baseTime: 60, requiresSwitch: true },
     { id: 'kneel_lunge', name: "Kneeling Lunge Stretch", desc: "Kneel on a soft pillow. Step one foot forward so your knee is at 90 degrees. Gently shift weight forward. Hold a wall!", baseTime: 60, requiresSwitch: true },
+    { id: 'butterfly', name: "Seated Butterfly", desc: "Sit on the floor. Bring the soles of your feet together, letting your knees drop to the sides. Gently lean forward.", baseTime: 60, requiresSwitch: false },
+    { id: 'side_lunge', name: "Supported Side Lunge", desc: "Hold a chair in front of you. Take a wide stance. Bend your right knee, keeping your left leg straight. Feel the stretch on the inside of the thigh.", baseTime: 60, requiresSwitch: true }
   ],
   curling: [
     { id: 'broom', name: "The Broom Twist", desc: "Sit or stand holding a broom (or imaginary broom) across your shoulders. Gently twist your torso side to side.", baseTime: 45, requiresSwitch: false },
     { id: 'slider', name: "Supported Slider Lunge", desc: "Hold a chair. Step one foot back and drop your hips slightly into a mini-lunge, mimicking a curling slide. Don't go deep!", baseTime: 40, requiresSwitch: true },
+    { id: 'static_hack', name: "Static Hack Position", desc: "Use a wall for support. Get into a deep runner's lunge as if your back foot is in the curling hack. Hold this isometric position to build leg strength.", baseTime: 40, requiresSwitch: true },
+    { id: 'broom_balance', name: "Broom Balance Reach", desc: "Stand on one leg. Hold your broom in front of you. Hinge forward slightly, reaching the broom out to counter-balance your back leg.", baseTime: 40, requiresSwitch: true }
   ]
 };
 
-// --- SVG ASSETS ---
+// --- SVG ASSETS & ICONS ---
 const ICONS = {
     play: `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`,
     pause: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`,
@@ -79,19 +91,38 @@ const ICONS = {
 
 function getSketchPath(id) {
     switch(id) {
+      // Flat Feet
       case 'arch': return '<path d="M 20 80 Q 45 65 70 80 L 85 90 L 15 90 Z" />';
       case 'toe_yoga': return '<path d="M 20 85 L 50 85 L 75 70 M 50 85 L 80 80 M 50 85 L 85 90" />';
       case 'calf': return '<rect x="15" y="45" width="25" height="40" stroke="none" fill="#e2e8f0" /><circle cx="30" cy="15" r="8" /><path d="M 30 23 L 30 50 M 30 50 L 55 50 M 55 50 L 55 80 M 55 80 L 70 95" />';
+      case 'towel_scrunch': return '<path d="M 10 90 Q 25 75 40 90 Q 55 75 70 90 Q 85 75 95 90" stroke-width="2" stroke="#cbd5e1"/><path d="M 45 40 L 45 85 M 45 85 L 30 90 M 45 85 L 60 90" />';
+      case 'ankle_circles': return '<path d="M 30 40 L 30 75 M 30 75 L 50 85 M 70 85 A 15 15 0 1 1 70 84" stroke-dasharray="0" /><polygon points="65 70 75 75 65 80" fill="#2563eb" stroke="none" />';
+      
+      // Balance
       case 'single_leg': return '<rect x="70" y="40" width="15" height="50" stroke="none" fill="#e2e8f0" /><circle cx="40" cy="15" r="8" /><path d="M 40 23 L 40 55 M 40 55 L 40 90 M 40 55 L 55 55 M 55 55 L 55 80 M 40 35 L 70 45 M 40 35 L 20 50" />';
       case 'tandem': return '<circle cx="50" cy="15" r="8" /><path d="M 50 23 L 50 60 M 50 60 L 35 90 M 35 90 L 55 90 M 50 60 L 65 90 M 65 90 L 85 90 M 50 35 L 20 45 M 50 35 L 80 45" />';
       case 'weight_shift': return '<circle cx="60" cy="15" r="8" /><path d="M 60 23 L 50 55 M 50 55 L 40 90 M 50 55 L 70 90 M 60 35 L 30 40 M 60 35 L 85 45" />';
+      case 'pillow_stand': return '<rect x="20" y="80" width="60" height="15" rx="5" fill="#e2e8f0" stroke="none"/><circle cx="50" cy="15" r="8" /><path d="M 50 23 L 50 55 L 50 80 M 50 55 L 70 55 L 70 75 M 50 35 L 20 45 M 50 35 L 80 45" />';
+      case 'clock_taps': return '<circle cx="50" cy="15" r="8" /><path d="M 50 23 L 50 55 L 50 90 M 50 55 L 30 75 L 20 90 M 50 35 L 30 45 M 50 35 L 70 45" /><path d="M 15 90 A 35 35 0 0 1 85 90" stroke-dasharray="4" />';
+
+      // Hamstrings
       case 'towel': return '<circle cx="25" cy="40" r="8" /><path d="M 25 48 L 25 80 M 25 80 L 80 80 M 25 55 L 75 75 M 75 75 L 80 80 M 25 80 L 15 80" />';
       case 'chair_ham': return '<rect x="10" y="45" width="25" height="40" stroke="none" fill="#e2e8f0" /><circle cx="25" cy="15" r="8" /><path d="M 25 23 L 25 50 M 25 50 L 40 50 L 40 90 M 25 50 L 75 90 M 25 35 L 45 45" />';
       case 'wall_ham': return '<rect x="65" y="10" width="10" height="80" stroke="none" fill="#e2e8f0" /><circle cx="20" cy="80" r="8" /><path d="M 28 80 L 60 80 M 60 80 L 60 25 M 60 80 L 90 80 M 40 80 L 50 65" />';
+      case 'good_morning': return '<rect x="70" y="45" width="20" height="45" stroke="none" fill="#e2e8f0"/><circle cx="25" cy="30" r="8" /><path d="M 33 30 L 65 40 L 65 90 M 65 40 L 55 90 M 33 30 L 70 45" />';
+
+      // Hips
       case 'figure4': return '<rect x="30" y="45" width="25" height="40" stroke="none" fill="#e2e8f0" /><circle cx="40" cy="15" r="8" /><path d="M 40 23 L 40 50 M 40 50 L 60 50 L 60 90 M 40 50 L 70 45 L 60 70 M 40 35 L 60 40" />';
       case 'kneel_lunge': return '<circle cx="40" cy="20" r="8" /><path d="M 40 28 L 40 55 M 40 55 L 20 85 L 40 85 M 40 55 L 65 55 L 65 85 M 40 40 L 60 45 L 60 70" />';
+      case 'butterfly': return '<circle cx="50" cy="25" r="8" /><path d="M 50 33 L 50 70 M 50 70 L 25 85 L 50 90 L 75 85 L 50 70 M 50 45 L 30 65 M 50 45 L 70 65" />';
+      case 'side_lunge': return '<circle cx="50" cy="20" r="8" /><path d="M 50 28 L 50 55 L 20 90 M 50 55 L 75 90 L 75 55 M 50 40 L 30 45 M 50 40 L 70 45" />';
+
+      // Curling Specific
       case 'broom': return '<circle cx="50" cy="15" r="8" /><path d="M 50 23 L 50 65 M 50 65 L 40 90 M 50 65 L 60 90 M 15 30 L 85 30 M 50 35 L 30 35 M 50 35 L 70 35" stroke-width="5" />';
       case 'slider': return '<rect x="70" y="55" width="15" height="30" stroke="none" fill="#e2e8f0" /><circle cx="35" cy="25" r="8" /><path d="M 35 33 L 55 60 M 55 60 L 20 85 M 55 60 L 75 60 L 75 85 M 35 45 L 75 55" />';
+      case 'static_hack': return '<rect x="75" y="10" width="15" height="80" stroke="none" fill="#e2e8f0" /><circle cx="45" cy="35" r="8" /><path d="M 45 43 L 55 60 M 55 60 L 25 85 M 55 60 L 75 60 L 75 85 M 45 50 L 75 55 M 20 85 L 45 85" />';
+      case 'broom_balance': return '<circle cx="30" cy="25" r="8" /><path d="M 30 33 L 50 45 L 50 90 M 50 45 L 85 40 M 30 45 L 65 55 M 65 15 L 65 90" stroke-width="3" />';
+
       default: return '<circle cx="50" cy="50" r="20" />';
     }
 }
@@ -155,7 +186,6 @@ function generateDailyRoutine(currentLevel) {
     { ...getRandom(EXERCISE_POOL.curling), category: 'Curling Specific' }
   ];
 
-  // Fisher-Yates shuffle
   for (let i = routine.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [routine[i], routine[j]] = [routine[j], routine[i]];
@@ -220,7 +250,7 @@ function goHome() {
 async function requestMod() {
     const currentEx = currentRoutine[currentExIndex];
     isGeneratingMod = true;
-    render(); // show loading
+    render(); 
     
     const prompt = `My user is 45 years old, weighs 250 pounds, has flat feet, struggles with balance, and cannot touch their toes. 
     They are trying to do the exercise "${currentEx.name}" which is described as: "${currentEx.desc}". 
@@ -228,19 +258,19 @@ async function requestMod() {
     
     modText = await fetchGemini(prompt);
     isGeneratingMod = false;
-    render(); // show result
+    render(); 
 }
 
 async function generateJoke() {
     isGeneratingJoke = true;
-    render(); // show loading
+    render(); 
     
     const prompt = "Tell me a short, clean, funny dad joke about the sport of curling.";
     const response = await fetchGemini(prompt, "You are a comedian who loves curling.");
     currentJoke = response.replace(/^["']|["']$/g, '').trim();
     
     isGeneratingJoke = false;
-    render(); // show result
+    render(); 
 }
 
 // Timer Loop
